@@ -21,7 +21,7 @@ need is a single Perceptron -- hence our Neural Network will only have one node.
 void test0(){
     
     Perceptron * p {nullptr} ;
-    p = new Perceptron( 2 ) ;   // for Logic AND gate input size is 2
+    p = new Perceptron( 2 ) ;           // for Logic AND gate input size is 2
     if( p == nullptr )
         return ;
     
@@ -35,7 +35,6 @@ void test0(){
     
     delete p ;
 }
-//....................................................................................................
 //....................................................................................................
 /* In this test we are running the Perceptron model to simulate Logic OR Gate. There are only two
 dimensions X and Y which represent points (0,0), (0,1), (1,0) and (1,1). These points are linearly
@@ -51,7 +50,7 @@ need is a single Perceptron -- hence our Neural Network will only have one node.
 void test1(){
     
     Perceptron * p  {nullptr} ;
-    p = new Perceptron( 2 ) ;   // for Logic OR gate input size is 2
+    p = new Perceptron( 2 ) ;           // for Logic OR gate input size is 2
     if( p == nullptr )
         return ;
     
@@ -66,7 +65,34 @@ void test1(){
     delete p ;
 }
 //....................................................................................................
-
+/* In this test we are running the Perceptron model to simulate Logic NAND Gate. There are only two
+dimensions X and Y which represent points (0,0), (0,1), (1,0) and (1,1). These points are linearly
+separable and are on a 2D Cartesian Plane. These points represent the values of the NAND Table:
+    0 and 0 = 1     input( 0,0 )
+    0 and 1 = 1     input( 0,1 )
+    1 and 0 = 1     input( 1,0 )
+    1 and 1 = 0     input( 1,1 )
+The task for the Perceptron model is to find the decision boundry that correctly seperates/classifies
+the input are either 0 (false) or 1 (true). Note that since this data is linearly separable all we
+need is a single Perceptron -- hence our Neural Network will only have one node.
+*/
+void test2(){
+    
+    Perceptron * p  {nullptr} ;
+    p = new Perceptron( 2 ) ;           // for Logic NAND gate input size is 2
+    if( p == nullptr )
+        return ;
+    
+    (*p).set_weights( {-10,-10,15} ) ;   // these weights are NOT learned by the network (just testing)
+    
+    std::cout << "NAND GATE:\n" ;
+    std::cout <<"0 NAND 0 : "<< (((*p).sigmoid( (*p).run( {0,0} ))) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 NAND 1 : "<< (((*p).sigmoid( (*p).run( {0,1} ))) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 NAND 0 : "<< (((*p).sigmoid( (*p).run( {1,0} ))) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 NAND 1 : "<< (((*p).sigmoid( (*p).run( {1,1} ))) > 0.5 ? 1 : 0 ) << std::endl ;
+    
+    delete p ;
+}
 //....................................................................................................
 int main() {
     
@@ -75,6 +101,12 @@ int main() {
     
     test0() ;
     test1() ;
+    test2() ;
+    /* If you noticed the pattern, while implementing AND, OR and NAND gates ALL we changed were the
+    weights */
     
     return 0;
 }//...................................................................................................
+
+
+

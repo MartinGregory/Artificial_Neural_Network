@@ -25,7 +25,7 @@ double generate_random(){
     
     double val = 0.0 ;
     val = double( rand() ) ;        // generate numbers 0 to RAND_MAX
-    val /= RAND_MAX ;                // normalize the range within 0...1
+    val /= RAND_MAX ;               // normalize the range within 0...1
     val *= 2.0 ;                    // scale/expand the range to be within 0...2
     val -= 1.0 ;                    // now shift the range within -1...1
     
