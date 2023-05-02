@@ -9,30 +9,36 @@
 #ifndef _Perceptron_H_
 #define _Perceptron_H_
 
+//#include "Globals.hpp"
+//#include "MultiLayerPerceptron.hpp"
+
 #include <iostream>
 #include <vector>
 #include <numeric>
 #include <cmath>
-#include <random>       // rand(), srand()
-#include <time.h>       // time(0) i.e. the current time that seeds srand()
-#include <algorithm>    // needed for all STL algorithms
+#include <random>           // rand(), srand()
+#include <time.h>           // time(0) i.e. the current time that seeds srand()
+#include <algorithm>        // needed for all STL algorithms
+
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 class Perceptron {
     
+    friend class MultiLayerPerceptron ;
+    
     // ALL values must be Real values (NO Integers)
-    std::vector< double > weights ;     // vector of weights--to be trained
-    double bias ;                       // bias allows for the decision boundry to be independent of
-                                        // the origin
-    int input_size ;
+    std::vector< double > weights ;     // vector of weights--i.e. parameter vector to be trained
+    
+    int input_size ;    // number of features in the input vector (excluding bias)
     
 public:
-    
-    Perceptron( int input_size, double bias=1.0 ) ;
+    Perceptron( int input_size ) ;
     
     double run( std::vector< double > inputs ) ;
+    
     void set_weights( std::vector< double > init_vec ) ;
-    double sigmoid( double z ) ;
+    std::vector<double> & get_weights() ;
+    void print_weights() ;
 };//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 #endif /* Perceptron_hpp */

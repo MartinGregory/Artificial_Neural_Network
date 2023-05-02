@@ -5,22 +5,18 @@
 //  Created by Martin Gregory Sendrowicz on 4/26/23.
 //
 
+#include "Globals.hpp"
 #include "Perceptron.hpp"
-//#include <iostream>
-//#include <vector>
-//#include <numeric>
-//#include <cmath>
-//#include <random>       // rand(), srand()
-//#include <time.h>       // time(0) i.e. the current time that seeds srand()
-//#include <algorithm>    // needed for all STL algorithms
 
+extern const double bias ;  // bias allows for the decision boundry to be independent of
+                            // the origin
 
 //....................................................................................................
 /* This function will generate a different random number for every call. Since these values will be
  used as weights for the Perceptron model we want to constrain them to be within -1 and +1 */
 double generate_random(){
     
-    //srand( u_int(time(0)) ) ;   // srand() uses the current time as seed for random generator rand()
+    // srand( u_int(time(0)) ) ;   // srand() uses the current time as seed for random generator rand()
     // do the above in the main()
     
     double val = 0.0 ;
@@ -29,37 +25,21 @@ double generate_random(){
     val *= 2.0 ;                    // scale/expand the range to be within 0...2
     val -= 1.0 ;                    // now shift the range within -1...1
     
-    //val = (( 2.0 * (double)rand() / RAND_MAX ) - 1.0) ;   // OR a simple one liner
+    // OR a simple one liner
+    //val = (( 2.0 * (double)rand() / RAND_MAX ) - 1.0) ;
     return val ;
 }
 //....................................................................................................
-//Return a new Perceptron object with the specified number of inputs (+1 for the bias).
-Perceptron::Perceptron( int input_size , double bias ): bias{bias}, input_size{input_size}{
+//Returns a new Perceptron object with the specified number of inputs (+1 for the bias).
+Perceptron::Perceptron( int input_size ): input_size{input_size}  {
     
-    weights.resize( input_size+1 ) ;        // +1 to adjust for the bias
+    // Save on memory space by resizing() the vector of weights to only accomodate the actual values
+    weights.resize( input_size+1 ) ;        // +1 to adjust for the bias weight
+    // Bias is always 1 but the bias weights must be learned by the network
     
-    // Populate the vector of weights with random values
+    /* At first populate the vector of weights with random values. Later the actual values will be
+    learned by the network */
     std::generate( weights.begin(), weights.end(), generate_random ) ;
-    
-    //std::for_each( weights.begin(), weights.end(), [](const double& v){ std::cout << v <<" ";}) ;
-    //std::cout << std::endl ;
-}
-//....................................................................................................
-//Run the Perceptron. The formal parameter 'input' is the vector containing the input values.
-double Perceptron::run( std::vector< double > inputs ){
-    
-    inputs.emplace_back( (*this).bias ) ;
-    
-    // Weighted Sum is the Dot Product of the inputs and weights vectors
-    double weighted_sum = std::inner_product( inputs.begin(), inputs.end(), (*this).weights.begin(), 0.0 );
-    
-    return weighted_sum ;
-}
-//....................................................................................................
-/* The Weighted Sum (Dot Product) 'z' outputed from the Perceptron must now pass via a non-linear
-activation function. One of such functions is a Sigmoid (Logistic) function: 1/(1+e^-z)*/
-double Perceptron::sigmoid( double z ){
-    return 1.0 / ( 1.0 + exp(-z) ) ;
 }
 //....................................................................................................
 /* The 'w_inti' is a vector containing weights which we want to use to initialize the vector of
@@ -72,3 +52,25 @@ void Perceptron::set_weights( std::vector< double > init_vec ){
     (*this).weights = std::move( init_vec ) ;
 }
 //....................................................................................................
+void Perceptron::print_weights(){
+    std::cout << "[ " ;
+    std::for_each( weights.begin(), weights.end(), [](const double& w){ std::cout << w <<" ";} ) ;
+    std::cout << "]\n" ;
+}
+//....................................................................................................
+/* Returns the sequence of weights learned by the given Perceptron. */
+std::vector<double> & Perceptron::get_weights() { return (*this).weights ; } ;
+//....................................................................................................
+//Run the Perceptron. The formal parameter 'input' is the vector containing the input values.
+double Perceptron::run( std::vector< double > inputs ){
+
+    inputs.emplace_back( bias ) ;
+    
+    // Weighted Sum is the Dot Product of the inputs and weights vectors
+    double weighted_sum = std::inner_product( inputs.begin(), inputs.end(), (*this).weights.begin(), 0.0 );
+    
+    return weighted_sum ;
+}
+//....................................................................................................
+
+
