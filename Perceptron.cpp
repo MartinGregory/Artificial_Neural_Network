@@ -62,14 +62,17 @@ void Perceptron::print_weights(){
 std::vector<double> & Perceptron::get_weights() { return (*this).weights ; } ;
 //....................................................................................................
 //Run the Perceptron. The formal parameter 'input' is the vector containing the input values.
-double Perceptron::run( std::vector< double > inputs ){
-
+double Perceptron::run( std::vector< double > inputs , FUNC f ){
+    
     inputs.emplace_back( bias ) ;
+    
+    (*this).input = inputs ;
     
     // Weighted Sum is the Dot Product of the inputs and weights vectors
     double weighted_sum = std::inner_product( inputs.begin(), inputs.end(), (*this).weights.begin(), 0.0 );
-    
-    return weighted_sum ;
+
+    (*this).output = f( weighted_sum ) ;
+    return (*this).output ;
 }
 //....................................................................................................
 

@@ -20,6 +20,7 @@
 #include <time.h>           // time(0) i.e. the current time that seeds srand()
 #include <algorithm>        // needed for all STL algorithms
 
+using FUNC = double (*)(double) ;
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 class Perceptron {
@@ -31,10 +32,13 @@ class Perceptron {
     
     int input_size ;    // number of features in the input vector (excluding bias)
     
+    std::vector< double > input ;
+    double output ;     // neuron's output after passing via activation function
+    
 public:
     Perceptron( int input_size ) ;
     
-    double run( std::vector< double > inputs ) ;
+    double run( std::vector< double > inputs , FUNC f ) ;
     
     void set_weights( std::vector< double > init_vec ) ;
     std::vector<double> & get_weights() ;
