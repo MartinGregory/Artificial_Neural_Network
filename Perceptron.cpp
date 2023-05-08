@@ -7,6 +7,7 @@
 
 #include "Globals.hpp"
 #include "Perceptron.hpp"
+#include "Activation_Function.cpp"
 
 extern const double bias ;  // bias allows for the decision boundry to be independent of
                             // the origin
@@ -31,7 +32,7 @@ double generate_random(){
 }
 //....................................................................................................
 //Returns a new Perceptron object with the specified number of inputs (+1 for the bias).
-Perceptron::Perceptron( int input_size ): input_size{input_size}  {
+Perceptron::Perceptron( int input_size, ACTIVATION flag ): input_size{input_size}, activation_flag{flag} {
     
     // Save on memory space by resizing() the vector of weights to only accomodate the actual values
     weights.resize( input_size+1 ) ;        // +1 to adjust for the bias weight
@@ -62,7 +63,7 @@ void Perceptron::print_weights(){
 std::vector<double> & Perceptron::get_weights() { return (*this).weights ; } ;
 //....................................................................................................
 //Run the Perceptron. The formal parameter 'input' is the vector containing the input values.
-double Perceptron::run( std::vector< double > inputs , FUNC f ){
+double Perceptron::run( std::vector< double > inputs ){
     
     inputs.emplace_back( bias ) ;
     
@@ -70,8 +71,22 @@ double Perceptron::run( std::vector< double > inputs , FUNC f ){
     
     // Weighted Sum is the Dot Product of the inputs and weights vectors
     double weighted_sum = std::inner_product( inputs.begin(), inputs.end(), (*this).weights.begin(), 0.0 );
-
-    (*this).output = f( weighted_sum ) ;
+    
+    // pass the Dot Product via the given activation function
+    Activation_Function f ;
+    switch ( (*this).activation_flag ){
+        case ACTIVATION::Sigmoid :
+            (*this).output = f.sigmoid( weighted_sum ) ; break ;
+            
+        case ACTIVATION::TanH :
+            (*this).output = f.tanh( weighted_sum ) ; break ;
+            
+        case ACTIVATION::ReLu :
+            (*this).output = f.relu( weighted_sum ) ; break ;
+            
+        default:
+            std::cerr << "Activation Function Error!\n" ;
+    }
     return (*this).output ;
 }
 //....................................................................................................

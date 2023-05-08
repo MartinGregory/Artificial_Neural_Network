@@ -17,7 +17,8 @@ extern const double bias ;      // bias allows for the decision boundry to be in
 
 //....................................................................................................
 //Return a new MultiLayerPerceptron object with the specified parameters
-MultiLayerPerceptron::MultiLayerPerceptron( std::vector< int > shape, double eta ): shape{shape}, eta{eta} {
+MultiLayerPerceptron::MultiLayerPerceptron( std::vector< int > shape, double eta, ACTIVATION flag ):
+    shape{shape}, eta{eta} {
         
     /* Below lets construct the network layer by layer. For each layer we must add a vector of output
     values, and a vector of Perceptrons. */
@@ -30,7 +31,8 @@ MultiLayerPerceptron::MultiLayerPerceptron( std::vector< int > shape, double eta
         
         errors.emplace_back( std::vector< double >( shape[i],0.0 ) ) ;
         
-        network.emplace_back( std::vector< Perceptron >() );    // for now just insert an empty vector of neurons
+        // for now just insert an empty vector of neurons
+        network.emplace_back( std::vector< Perceptron >() );
         
         /* Below we add individual Perceptrons (neurons) to each layer of the network. Note that
         the 1st layer represents the input layer--which contain NO neurons so we skip it i>0 */
@@ -41,12 +43,24 @@ MultiLayerPerceptron::MultiLayerPerceptron( std::vector< int > shape, double eta
                 So below, for each layer we create a Perceptron with as many inputs as there are neurons
                 in the previous layer (our network is a fully connected network). Remember, the bias
                 input does NOT count here because the Perceptron's constructor already adjusts for it. */
-                network[i].emplace_back( shape[i-1] ) ;    /* the beuty of emplace_back allows you to
-                call the constructor directly and create the object in-place -- NO unnecessary calls
-                to the copy/move constructor (super efficient) -- so we call emplace_back with the same
-                arguments as we would normally call the Perceptron constructor */
+                switch ( flag ){
+                    case ACTIVATION::Sigmoid:
+                        network[i].emplace_back( shape[i-1],ACTIVATION::Sigmoid ) ; break ;
+                        
+                    case ACTIVATION::TanH:
+                        network[i].emplace_back( shape[i-1],ACTIVATION::TanH ) ; break ;
+                        
+                    case ACTIVATION::ReLu:
+                        network[i].emplace_back( shape[i-1],ACTIVATION::ReLu ) ; break ;
+                        
+                    default:
+                        std::cerr << "Activation Function ERROR!\n" ;
+                }
+                /* the beuty of emplace_back allows you to call the constructor directly and create the
+                object in-place -- NO unnecessary calls to the copy/move constructor (super efficient)
+                -- so we call emplace_back with the same arguments as we would normally call the
+                Perceptron constructor */
     }
-    
     network.shrink_to_fit() ;
     output_values.shrink_to_fit() ;
     errors.shrink_to_fit() ;
@@ -90,7 +104,6 @@ std::vector<double> MultiLayerPerceptron::run( std::vector< double > inputs ){
     output_values[ 0 ] = inputs ;   // given the vector is inputs [ x1,x2 ]
     
     Perceptron * p = nullptr ;
-    Activation_Function f ;
     
     for( int i{1} ; i<network.size() ; i++ )
         for( int j{0} ; j<network[ i ].size() ; j++ ){
@@ -99,8 +112,7 @@ std::vector<double> MultiLayerPerceptron::run( std::vector< double > inputs ){
             
             /* run each neuron of the consecutive layer by feeding it the output from each neuron
             of the previous layer */
-            output_values[ i ][ j ] = ( (*p).run( output_values[ i-1 ],f.sigmoid ) ) ;
-            //output_values[ i ][ j ] = f.tanh( (*p).run( output_values[ i-1 ] ) ) ;
+            output_values[ i ][ j ] = ( (*p).run( output_values[ i-1 ] ) ) ;
         }
     return output_values.back() ;   // return the last layer neutron's output value(s)
 }
@@ -125,10 +137,23 @@ double MultiLayerPerceptron::back_prop( std::vector< double > x , std::vector< d
                 intermediate error calculation that allows us to gauge how each neuron is doing. */
     
     // Populate the last vector of errors-vector with δs (error terms) of the output layer neurons
-    for( int i=0 ; i < output.size() ; ++i ){
-        errors.back()[ i ] = output[ i ] * (1 - output[ i ]) * (y[ i ] - output[ i ]) ;
+    Activation_Function f ;
+    for( int i{0} ; i<network.back().size() ; ++i ){
+        
+        switch ( network.back()[ i ].activation_flag ){
+            case ACTIVATION::Sigmoid :
+                //errors.back()[ i ] = output[ i ] * (1 - output[ i ]) * (y[ i ] - output[ i ]) ;
+                errors.back()[ i ] = f.sigmoid_dz( output[ i ] ) * (y[ i ] - output[ i ]) ; break ;
+                
+            case ACTIVATION::TanH :
+                errors.back()[ i ] = f.tanh_dz( output[ i ] ) * (y[ i ] - output[ i ]) ; break ;
+                
+            case ACTIVATION::ReLu :
+                errors.back()[ i ] = f.relu_dz( output[ i ] ) * (y[ i ] - output[ i ]) ; break ;
+            default:
+                std::cerr << "Activation Function Error! (Step-3)\n" ;
+        }
     }
-    
     /* Step-4:  For each of the hidden neurons, calculate their δk error terms—we do this backwards
                 i.e. we iterate from the last hidden layer, all the way to the first hidden layer
                 finding the error term for each hidden neuron. */
@@ -148,10 +173,24 @@ double MultiLayerPerceptron::back_prop( std::vector< double > x , std::vector< d
                 
                 dot_product += network[i+1][k].weights[h] * errors[i+1][k] ;     // ∑ wkh * δk
             
-            /* Complete the formula: error term δh = oh * (1 – oh) * ∑ wkh * δk */
-            errors[i][h] = output_values[i][h] * ( 1-output_values[i][h] ) * dot_product ;
-        }
+            /* Completing the formula: error term δh = oh * (1 – oh) * ∑ wkh * δk */
+            switch ( network[i][h].activation_flag ){
+                case ACTIVATION::Sigmoid :
+                    //errors[i][h] = output_values[i][h] * ( 1-output_values[i][h] ) * dot_product ;
+                    errors[i][h] = f.sigmoid_dz( output_values[i][h] ) * dot_product ; break ;
+                    
+                case ACTIVATION::TanH :
+                    //errors[i][h] = (1 - ( output_values[i][h] * output_values[i][h] )) * dot_product ;
+                    errors[i][h] = f.tanh_dz( output_values[i][h] ) * dot_product ; break ;
+                    
+                case ACTIVATION::ReLu :
+                    //errors[i][h] = double((output_values[i][h] < 0) ? 0 : 1) * dot_product ;
+                    errors[i][h] = f.relu_dz( output_values[i][h] ) * dot_product ; break ;
 
+                default:
+                    std::cerr << "Activation Function Error! (Step-4)\n" ;
+            }
+        }
     /* Step 5:  Apply the Δ delta rule:
         (1) For each of neuroni’s input, calculate the weight adjustment Δ.
                 Δwij = η δi xij

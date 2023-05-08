@@ -25,6 +25,11 @@ public:
         return 1.0 / ( 1.0 + exp(-z) ) ;
     }
     //....................................................................................................
+    /* Sigmoid derivative requited for backpropagation */
+    static double sigmoid_dz( double a ){
+        return a * ( 1-a ) ;
+    }
+    //....................................................................................................
     /* Another very popular activation function is ReLu(z) = y = max( z,0 )
      ReLu useful properties:
      - while Tanh and Sigmoid functions map very high values of z into y being close to 1 ; ReLU does NOT
@@ -36,6 +41,11 @@ public:
         return fmax( z,0 );
     }
     //....................................................................................................
+    /* ReLu derivative requited for backpropagation */
+    static double relu_dz( double a ){
+        return (a<0) ? 0 : 1 ;
+    }
+    //....................................................................................................
     /* Tanh useful properties:
      - Tanh function is smoothly differentiable and maps the outliers towards the mean
      - almost always performs better than Sigmoid
@@ -43,6 +53,11 @@ public:
      - very high z(s) result in saturation (extremely close to 1) which causes problems in learning */
     static double tanh(double z) {
         return (exp(z) - exp(-z)) / (exp(z) + exp(-z));
+    }
+    //....................................................................................................
+    /* Tanh derivative requited for backpropagation */
+    static double tanh_dz( double a ){
+        return 1 - ( a*a )  ;
     }
     //....................................................................................................
 };

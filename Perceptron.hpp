@@ -20,7 +20,9 @@
 #include <time.h>           // time(0) i.e. the current time that seeds srand()
 #include <algorithm>        // needed for all STL algorithms
 
-using FUNC = double (*)(double) ;
+//using FUNC = double (*)(double) ;
+
+enum class ACTIVATION{ Sigmoid, TanH, ReLu } ;
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 class Perceptron {
@@ -35,10 +37,14 @@ class Perceptron {
     std::vector< double > input ;
     double output ;     // neuron's output after passing via activation function
     
+    /* The 'activation_flag' will signal the backpropagation algorighm which activation finction was
+    used (by the given neuron) so that the proper derivative can be computed */
+    ACTIVATION activation_flag ;
+
 public:
-    Perceptron( int input_size ) ;
+    Perceptron( int input_size, ACTIVATION flag ) ;
     
-    double run( std::vector< double > inputs , FUNC f ) ;
+    double run( std::vector< double > inputs ) ;
     
     void set_weights( std::vector< double > init_vec ) ;
     std::vector<double> & get_weights() ;

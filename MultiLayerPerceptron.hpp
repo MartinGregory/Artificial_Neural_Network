@@ -19,7 +19,7 @@
 #include <random>       // rand(), srand()
 #include <time.h>       // time(0) i.e. the current time that seeds srand()
 #include <algorithm>    // needed for all STL algorithms
-
+#include "Perceptron.hpp"
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 class MultiLayerPerceptron {
@@ -56,7 +56,7 @@ class MultiLayerPerceptron {
 // MEMBER FUNCTIONS (public interface)
 public:
     
-    MultiLayerPerceptron( std::vector< int > shape, double eta=0.5 ) ;
+    MultiLayerPerceptron( std::vector< int > shape, double eta=0.5, ACTIVATION flag=ACTIVATION::Sigmoid ) ;
     
     std::vector<double> run( std::vector< double > inputs ) ;
     

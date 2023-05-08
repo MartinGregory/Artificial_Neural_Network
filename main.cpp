@@ -23,19 +23,17 @@ we need is a single Perceptron -- hence our Neural Network will only have one no
 void test0(){
     
     Perceptron * p {nullptr} ;
-    p = new Perceptron( 2 ) ;           // for Logic AND gate input size is 2
+    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic AND gate input size is 2
     if( p == nullptr )
         return ;
     
     (*p).set_weights( {10,10,-15} ) ;   // these weights are NOT learned by the network (just testing)
     
-    Activation_Function f ;
-    
     std::cout << "AND GATE:\n" ;
-    std::cout <<"0 AND 0 : "<< (( (*p).run( {0,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"0 AND 1 : "<< (( (*p).run( {0,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 AND 0 : "<< (( (*p).run( {1,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 AND 1 : "<< (( (*p).run( {1,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 AND 0 : "<< (( (*p).run( {0,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 AND 1 : "<< (( (*p).run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 AND 0 : "<< (( (*p).run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 AND 1 : "<< (( (*p).run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
     
     delete p ;
 }
@@ -53,19 +51,17 @@ we need is a single Perceptron -- hence our Neural Network will only have one no
 void test1(){
     
     Perceptron * p  {nullptr} ;
-    p = new Perceptron( 2 ) ;           // for Logic OR gate input size is 2
+    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic OR gate input size is 2
     if( p == nullptr )
         return ;
     
     (*p).set_weights( {15,15,-10} ) ;   // these weights are NOT learned by the network (just testing)
     
-    Activation_Function f ;
-    
     std::cout << "OR GATE:\n" ;
-    std::cout <<"0 OR 0 : "<< (( (*p).run( {0,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"0 OR 1 : "<< (( (*p).run( {0,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 OR 0 : "<< (( (*p).run( {1,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 OR 1 : "<< (( (*p).run( {1,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 OR 0 : "<< (( (*p).run( {0,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 OR 1 : "<< (( (*p).run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 OR 0 : "<< (( (*p).run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 OR 1 : "<< (( (*p).run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
     
     delete p ;
 }
@@ -83,25 +79,17 @@ we need is a single Perceptron -- hence our Neural Network will only have one no
 void test2(){
     
     Perceptron * p  {nullptr} ;
-    p = new Perceptron( 2 ) ;           // for Logic NAND gate input size is 2
+    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic NAND gate input size is 2
     if( p == nullptr )
         return ;
     
     (*p).set_weights( {-10,-10,15} ) ;   // these weights are NOT learned by the network (just testing)
     
-    Activation_Function f ;
-    
-//    std::cout << "NAND GATE:\n" ;
-//    std::cout <<"0 NAND 0 : "<< ((f.sigmoid( (*p).run( {0,0} ))) > 0.5 ? 1 : 0 ) << std::endl ;
-//    std::cout <<"0 NAND 1 : "<< ((f.sigmoid( (*p).run( {0,1} ))) > 0.5 ? 1 : 0 ) << std::endl ;
-//    std::cout <<"1 NAND 0 : "<< ((f.sigmoid( (*p).run( {1,0} ))) > 0.5 ? 1 : 0 ) << std::endl ;
-//    std::cout <<"1 NAND 1 : "<< ((f.sigmoid( (*p).run( {1,1} ))) > 0.5 ? 1 : 0 ) << std::endl ;
-    
     std::cout << "NAND GATE:\n" ;
-    std::cout <<"0 NAND 0 : "<< (( (*p).run( {0,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"0 NAND 1 : "<< (( (*p).run( {0,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 NAND 0 : "<< (( (*p).run( {1,0},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 NAND 1 : "<< (( (*p).run( {1,1},f.sigmoid )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 NAND 0 : "<< (( (*p).run( {0,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 NAND 1 : "<< (( (*p).run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 NAND 0 : "<< (( (*p).run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 NAND 1 : "<< (( (*p).run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
     
     delete p ;
 }
@@ -136,6 +124,9 @@ void test3(){
 void test4(){
     
     MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1} ) ;
+    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1},0.5,ACTIVATION::TanH ) ;
+    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1},0.5,ACTIVATION::ReLu ) ;
+    
     double MSE = 0.0 ;
     int epochs = 3000 ;
     
