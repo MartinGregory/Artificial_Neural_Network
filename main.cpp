@@ -8,6 +8,7 @@
 #include "Globals.hpp"
 #include "Activation_Function.cpp"
 #include <iostream>
+#include <memory>
 
 //....................................................................................................
 /* In this test we are running the Perceptron model to simulate Logic AND Gate. There are only two
@@ -22,20 +23,50 @@ the given inputs as either 0 (false) or 1 (true). Note that since this data is l
 we need is a single Perceptron -- hence our Neural Network will only have one node. */
 void test0(){
     
-    Perceptron * p {nullptr} ;
-    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic AND gate input size is 2
-    if( p == nullptr )
-        return ;
+    Perceptron p = Perceptron( 2,ACTIVATION::Sigmoid ) ;    // Stack allocation
     
-    (*p).set_weights( {10,10,-15} ) ;   // these weights are NOT learned by the network (just testing)
+    //p.set_weights( {10,10,-15} ) ;   // these weights are NOT learned by the network (just testing)
+    p.set_weights( {1,1,-1} ) ;   // these weights are NOT learned by the network (just testing)
     
     std::cout << "AND GATE:\n" ;
-    std::cout <<"0 AND 0 : "<< (( (*p).run( {0,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"0 AND 1 : "<< (( (*p).run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 AND 0 : "<< (( (*p).run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
-    std::cout <<"1 AND 1 : "<< (( (*p).run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 AND 0 : "<< (( p.run( {0,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"0 AND 1 : "<< (( p.run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 AND 0 : "<< (( p.run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
+    std::cout <<"1 AND 1 : "<< (( p.run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
+}
+//....................................................................................................
+/* Below we simulate the AND Gate (just as above) using 2 inputs and 1 Perceptron--but this time
+the network must learn its own weights via backpropagation. Note that since the output of the AND
+Gate is linearly separable we can nust ReLU as our activation function.*/
+void test0_1(){
     
-    delete p ;
+    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,1} ) ;
+    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,1},0.5,ACTIVATION::TanH ) ;
+    MultiLayerPerceptron net = MultiLayerPerceptron( {2,1},0.5,ACTIVATION::ReLu ) ;
+    
+    double MSE = 0.0 ;
+    int epochs = 100 ;
+    
+    for( int epoch=0 ; epoch < epochs ; ++epoch ){
+            
+        MSE += net.back_prop( {0,0},{0} ) ;
+        MSE += net.back_prop( {0,1},{0} ) ;
+        MSE += net.back_prop( {1,0},{0} ) ;
+        MSE += net.back_prop( {1,1},{1} ) ;
+        
+        MSE /= 4.0 ;
+        
+        if( epoch % 10 == 0 )
+            std::cout <<"Epoch: "<<epoch<<" MSE: "<<MSE<< std::endl ;
+    }
+    std::cout << "\nBelow are the trained/learned weights:" ;
+    net.print_weights() ;
+    
+    std::cout << "AND GATE:\n" ;
+    std::cout <<"0 AND 0 : "<< (((net.run( {0,0} )[0]) > 0.5) ? 1 : 0) << std::endl ;
+    std::cout <<"0 AND 1 : "<< (((net.run( {0,1} )[0]) > 0.5) ? 1 : 0) << std::endl ;
+    std::cout <<"1 AND 0 : "<< (((net.run( {1,0} )[0]) > 0.5) ? 1 : 0) << std::endl ;
+    std::cout <<"1 AND 1 : "<< (((net.run( {1,1} )[0]) > 0.5) ? 1 : 0) << std::endl ;
 }
 //....................................................................................................
 /* In this test we are running the Perceptron model to simulate Logic OR Gate. There are only two
@@ -50,9 +81,9 @@ the given inputs as either 0 (false) or 1 (true). Note that since this data is l
 we need is a single Perceptron -- hence our Neural Network will only have one node. */
 void test1(){
     
-    Perceptron * p  {nullptr} ;
-    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic OR gate input size is 2
-    if( p == nullptr )
+    Perceptron * p  {nullptr} ;                         // Heap allocation via raw pointer
+    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;         // for Logic OR gate input size is 2
+    if( p == nullptr )  // in case 'new' fails
         return ;
     
     (*p).set_weights( {15,15,-10} ) ;   // these weights are NOT learned by the network (just testing)
@@ -78,10 +109,8 @@ the given inputs as either 0 (false) or 1 (true). Note that since this data is l
 we need is a single Perceptron -- hence our Neural Network will only have one node. */
 void test2(){
     
-    Perceptron * p  {nullptr} ;
-    p = new Perceptron( 2,ACTIVATION::Sigmoid ) ;           // for Logic NAND gate input size is 2
-    if( p == nullptr )
-        return ;
+    // Heap allocation via smart pointer
+    std::unique_ptr< Perceptron > p { new Perceptron( 2,ACTIVATION::Sigmoid ) } ;
     
     (*p).set_weights( {-10,-10,15} ) ;   // these weights are NOT learned by the network (just testing)
     
@@ -90,8 +119,7 @@ void test2(){
     std::cout <<"0 NAND 1 : "<< (( (*p).run( {0,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
     std::cout <<"1 NAND 0 : "<< (( (*p).run( {1,0} )) > 0.5 ? 1 : 0 ) << std::endl ;
     std::cout <<"1 NAND 1 : "<< (( (*p).run( {1,1} )) > 0.5 ? 1 : 0 ) << std::endl ;
-    
-    delete p ;
+
 }
 //....................................................................................................
 /* In this test we are running a FeedForward Neural Network, composed of 3 Perceptrons to simulate
@@ -123,9 +151,9 @@ void test3(){
 //....................................................................................................
 void test4(){
     
-    MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1} ) ;
+    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1} ) ;
     //MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1},0.5,ACTIVATION::TanH ) ;
-    //MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1},0.5,ACTIVATION::ReLu ) ;
+    MultiLayerPerceptron net = MultiLayerPerceptron( {2,2,1},0.5,ACTIVATION::ReLu ) ;
     
     double MSE = 0.0 ;
     int epochs = 3000 ;
@@ -157,9 +185,10 @@ int main() {
     srand( u_int( time(NULL) ) ) ; // srand() uses the current time as seed for random generator rand()
     rand() ;
     
-//    test0() ;
-//    test1() ;
-//    test2() ;
+    //test0() ;
+    //test0_1() ;
+    //test1() ;
+    //test2() ;
     /* If you noticed the pattern, while implementing AND, OR and NAND gates ALL we changed were the
     weights */
     //test3() ;
